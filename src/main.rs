@@ -2,6 +2,9 @@ use anyhow::{Context, Result};
 use serde_json::{json, Value};
 use std::fs;
 
+// Declares src/notebook.rs as a module of this crate.
+mod notebook;
+
 // Base path for all Unity Catalog endpoints
 const UC: &str = "/api/2.1/unity-catalog";
 
@@ -97,6 +100,13 @@ impl Ctx {
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenvy::dotenv().ok();
+
+    // `cargo run -- notebook ...` goes to the notebook tool; anything else
+    // runs the full snapshot below, exactly as before.
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.first().map(String::as_str) == Some("notebook") {
+        return notebook::run(&args[1..]).await;
+    }
 
     let host = std::env::var("DATABRICKS_HOST").context("DATABRICKS_HOST not set")?;
     let token = std::env::var("DATABRICKS_TOKEN").context("DATABRICKS_TOKEN not set")?;
