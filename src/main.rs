@@ -4,6 +4,7 @@ use std::fs;
 
 // Declares src/notebook.rs as a module of this crate.
 mod notebook;
+mod spark;
 
 // Base path for all Unity Catalog endpoints
 const UC: &str = "/api/2.1/unity-catalog";
@@ -106,6 +107,10 @@ async fn main() -> Result<()> {
     let args: Vec<String> = std::env::args().skip(1).collect();
     if args.first().map(String::as_str) == Some("notebook") {
         return notebook::run(&args[1..]).await;
+    }
+
+    if args.first().map(String::as_str) == Some("spark") {
+        return spark::run(&args[1..]).await;
     }
 
     let host = std::env::var("DATABRICKS_HOST").context("DATABRICKS_HOST not set")?;
